@@ -12,8 +12,9 @@ An interactive, AI-powered web application designed to facilitate dynamic learni
 
 ### 🖥️ Application Dashboard & Dual-Panel View
 
-![Application Interface](screenshots/Screenshot 2026-10-13 122306.png)
-![Application Interface](screenshots/Screenshot 2026-10-13 122526.png)
+![Application Interface](screenshots/Screenshot%202026-10-13%20122306.png)
+
+![Quiz & Summarizer View](screenshots/Screenshot%202026-10-13%20122526.png)
 
 ## 🛠️ Tech Stack
 
