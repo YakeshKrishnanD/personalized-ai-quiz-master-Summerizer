@@ -66,8 +66,8 @@ Before running the application, make sure you have installed:
 ### 1. Clone the repository
 
 ```bash
-git clone [https://github.com/YakeshKrishnanD/personalized-ai-quiz-master-Summerizer.git](https://github.com/YakeshKrishnanD/personalized-ai-quiz-master-Summerizer.git)
-cd personalized-ai-quiz-master-Summerizer/chatbot
+git clone [https://github.com/YakeshKrishnanD/personalized-ai-quiz-master-and-Summerizer.git](https://github.com/YakeshKrishnanD/personalized-ai-quiz-master-and-Summerizer.git)
+cd personalized-ai-quiz-master-and-Summerizer/chatbot
 
 ```
 
