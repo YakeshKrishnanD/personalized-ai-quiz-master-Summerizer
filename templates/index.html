@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GenAI Quiz Master & Summarizer</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #eef2f3; margin: 0; padding: 20px; display: flex; flex-direction: column; height: 95vh; }
+        h1 { text-align: center; color: #333; margin-bottom: 20px; }
+        .dashboard { display: flex; gap: 20px; flex: 1; min-height: 0; }
+        .panel { flex: 1; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; flex-direction: column; overflow: hidden; padding: 15px; }
+        .panel-header { font-size: 1.2rem; font-weight: bold; color: #007bff; border-bottom: 2px solid #f4f6f9; padding-bottom: 10px; margin-bottom: 10px; }
+        
+        /* Chat styling */
+        .chat-box { flex: 1; overflow-y: auto; padding: 10px; border: 1px solid #eee; border-radius: 6px; margin-bottom: 10px; background: #fafafa; display: flex; flex-direction: column; }
+        .message { margin: 10px 0; padding: 10px 14px; border-radius: 8px; max-width: 80%; line-height: 1.4; }
+        .user-msg { background: #007bff; color: white; align-self: flex-end; margin-left: auto; }
+        .bot-msg { background: #e9ecef; color: #333; align-self: flex-start; }
+        
+        /* Ensures lists and elements look clean inside parsed Markdown messages */
+        .message ul, .output-box ul { margin: 5px 0; padding-left: 20px; }
+        .message p, .output-box p { margin: 5px 0; }
+
+        .input-area { display: flex; gap: 8px; }
+        .input-area input { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 6px; outline: none; }
+        
+        /* Summarizer styling */
+        textarea { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 6px; resize: none; outline: none; font-family: inherit; margin-bottom: 10px; }
+        .output-box { flex: 1; overflow-y: auto; padding: 12px; border: 1px solid #e9ecef; background: #fdfdfd; border-radius: 6px; font-size: 0.95rem; line-height: 1.5; color: #333; }
+        
+        button { background: #007bff; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: background 0.2s; }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+
+<h1>🧠 Personalized AI Quiz Master & Summarizer</h1>
+
+<div class="dashboard">
+    <div class="panel">
+        <div class="panel-header">💬 Interactive AI Quiz Buddy</div>
+        <div class="chat-box" id="chatBox">
+            <div class="message bot-msg">Hi! Tell me what topic or subject you want to practice today, and I'll start quizzing you!</div>
+        </div>
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="Type your study topic or quiz answer here...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-header">📄 Chapter & Notes Summarizer</div>
+        <textarea id="textToSummarize" placeholder="Paste your study materials, textbook paragraphs, or reference notes here (minimum 50 characters) to organize them..."></textarea>
+        <button onclick="runSummarizer()" style="margin-bottom: 10px; background: #28a745;">Generate Structured Summary</button>
+        <div class="output-box" id="summaryOutput">Your cleanly formatted textbook summary breakdown will appear here...</div>
+    </div>
+</div>
+
+<script>
+    // Chat System Functionality
+    function sendMessage() {
+        const inputField = document.getElementById("userInput");
+        const messageText = inputField.value.trim();
+        if (!messageText) return;
+
+        const chatBox = document.getElementById("chatBox");
+        // Append user text cleanly
+        chatBox.innerHTML += `<div class="message user-msg">${messageText}</div>`;
+        inputField.value = "";
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        fetch("/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ msg: messageText })
+        })
+        .then(res => res.json())
+        .then(data => {
+            // UPDATED: Parses markdown formatting cleanly if the bot uses markdown structures during grading
+            const cleanHTML = marked.parse(data.response);
+            chatBox.innerHTML += `<div class="message bot-msg">${cleanHTML}</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        })
+        .catch(err => console.error("Error:", err));
+    }
+
+    // Summarizer Tool Functionality
+    function runSummarizer() {
+        const textInput = document.getElementById("textToSummarize").value;
+        const outputBox = document.getElementById("summaryOutput");
+        
+        outputBox.innerText = "Analyzing text and organizing your summary structure...";
+
+        fetch("/summarize", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: textInput })
+        })
+        .then(res => res.json())
+        .then(data => {
+            // UPDATED: Swapped innerText for innerHTML + marked.parse to properly process bullet points and headings
+            outputBox.innerHTML = marked.parse(data.summary);
+        })
+        .catch(err => {
+            outputBox.innerHTML = "<span style='color: red;'>Error completing summary request.</span>";
+            console.error("Error:", err);
+        });
+    }
+
+    document.getElementById("userInput").addEventListener("keypress", function(e) {
+        if (e.key === "Enter") sendMessage();
+    });
+</script>
+
+</body>
+</html>
